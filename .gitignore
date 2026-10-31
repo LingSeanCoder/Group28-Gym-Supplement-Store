@@ -161,6 +161,9 @@ out/
 # Logs
 *.log
 
+# Chứng chỉ kết nối database chỉ lưu trên máy hoặc cấu hình ở dịch vụ deploy.
+backend/certs/
+
 # Editor
 .vscode/
 .idea/

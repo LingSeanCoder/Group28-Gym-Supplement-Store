@@ -21,6 +21,6 @@ async function findById(id) {
 For transactions, acquire one client with `pool.connect()`, use that client for
 every statement, and always release it in `finally`.
 
-Task 3 adds no application tables or business queries. `/health` reports API
-liveness only. Database connectivity and `/api/health/db` belong to Task 7;
-schema and seed SQL belong to Tasks 14 and 15.
+`/health` chỉ kiểm tra API còn chạy. Task 7 thêm `healthRepository.js` với truy vấn
+chỉ đọc để `/health/db` và `/api/health/db` kiểm tra database thật. Schema và seed
+SQL vẫn thuộc Tasks 14 và 15, sau khi chốt ERD.

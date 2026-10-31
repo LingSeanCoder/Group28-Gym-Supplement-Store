@@ -16,6 +16,8 @@ app.use(morgan('dev', { skip: () => process.env.NODE_ENV === 'test' }));
 app.use(express.json({ limit: '1mb' }));
 
 app.get('/health', healthController.check);
+// Hai dạng URL dùng chung controller để thuận tiện kiểm tra local và cấu hình deploy.
+app.get('/health/db', healthController.checkDatabase);
 app.use('/api', routes);
 
 app.use((req, res) => {

@@ -1,18 +1,14 @@
 require('./env');
 const { Pool } = require('pg');
+const getDatabaseOptions = require('./dbOptions');
 
-// DATABASE_URL takes precedence; otherwise pg reads the standard PG* variables.
-// Connections are opened lazily, so the API health endpoint needs no database.
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL || undefined,
-  max: 10,
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 5000,
-  application_name: 'gym-supplement-store',
-});
+// Dùng chung một Pool. Chưa mở kết nối cho đến khi có truy vấn đầu tiên.
+// DATABASE_URL được ưu tiên; nếu để trống, pg đọc các biến PG* cho database local.
+const pool = new Pool(getDatabaseOptions());
 
 pool.on('error', () => {
-  console.error('Unexpected error on an idle PostgreSQL connection.');
+  // Chỉ ghi thông báo chung, không ghi URL hay mật khẩu ra log.
+  console.error('Có lỗi ở kết nối PostgreSQL đang chờ trong Pool.');
 });
 
 module.exports = pool;
