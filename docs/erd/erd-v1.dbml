@@ -1,0 +1,94 @@
+// ==========================================
+// GYM & SUPPLEMENT STORE - ERD (12 Tables)
+// ==========================================
+
+Table users {
+  id int [pk, increment]
+  email varchar [unique]
+  password_hash varchar
+  full_name varchar
+  role varchar [note: 'admin, staff, member']
+  created_at timestamp [default: `now()`]
+}
+
+Table membership_plans {
+  id int [pk, increment]
+  name varchar
+  duration_days int
+  price decimal
+  status varchar [note: 'active, hidden']
+}
+
+Table memberships {
+  id int [pk, increment]
+  user_id int [ref: > users.id]
+  plan_id int [ref: > membership_plans.id]
+  start_date date
+  end_date date
+  status varchar [note: 'Active, Expired, Cancelled']
+}
+
+Table checkins {
+  id int [pk, increment]
+  user_id int [ref: > users.id]
+  checkin_time timestamp [default: `now()`]
+}
+
+Table categories {
+  id int [pk, increment]
+  name varchar
+}
+
+Table products {
+  id int [pk, increment]
+  category_id int [ref: > categories.id]
+  name varchar
+  description text
+}
+
+Table product_variants {
+  id int [pk, increment]
+  product_id int [ref: > products.id]
+  flavor varchar
+  size varchar
+  price decimal
+  stock int [note: 'CHECK stock >= 0']
+}
+
+Table carts {
+  id int [pk, increment]
+  user_id int [ref: - users.id, unique]
+}
+
+Table cart_items {
+  id int [pk, increment]
+  cart_id int [ref: > carts.id]
+  variant_id int [ref: > product_variants.id]
+  quantity int
+}
+
+Table orders {
+  id int [pk, increment]
+  user_id int [ref: > users.id]
+  total_amount decimal
+  status varchar [note: 'Pending, Confirmed, Shipping, Delivered, Cancelled']
+  created_at timestamp [default: `now()`]
+}
+
+Table order_items {
+  id int [pk, increment]
+  order_id int [ref: > orders.id]
+  variant_id int [ref: > product_variants.id]
+  price decimal
+  quantity int
+}
+
+Table payments {
+  id int [pk, increment]
+  user_id int [ref: > users.id]
+  order_id int [ref: > orders.id, null]
+  membership_id int [ref: > memberships.id, null]
+  amount decimal
+  payment_method varchar [note: 'COD, Bank Transfer']
+  status varchar [note: 'Pending, Completed']
+}
