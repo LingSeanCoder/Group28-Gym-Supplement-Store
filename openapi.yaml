@@ -1,0 +1,66 @@
+openapi: 3.0.3
+info:
+  title: Gym and Supplement Store API
+  version: 0.1.0
+  description: Task 3 API scaffold. Health checks report API liveness only.
+servers:
+  - url: http://localhost:5000
+paths:
+  /health:
+    get:
+      operationId: getHealth
+      summary: Check API liveness without a database connection
+      responses:
+        '200':
+          $ref: '#/components/responses/Healthy'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /api/health:
+    get:
+      operationId: getApiHealth
+      summary: API-prefixed alias of the liveness endpoint
+      responses:
+        '200':
+          $ref: '#/components/responses/Healthy'
+        '500':
+          $ref: '#/components/responses/InternalError'
+components:
+  responses:
+    Healthy:
+      description: API is running; database readiness is not checked
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [success, data, error]
+            properties:
+              success:
+                type: boolean
+                enum: [true]
+              data:
+                type: object
+                required: [status, timestamp, uptime]
+                properties:
+                  status:
+                    type: string
+                    enum: [ok]
+                  timestamp:
+                    type: string
+                    format: date-time
+                  uptime:
+                    type: number
+                    minimum: 0
+              error:
+                type: object
+                nullable: true
+                example: null
+    InternalError:
+      description: Unexpected server error
+      content:
+        application/json:
+          example:
+            success: false
+            data: null
+            error:
+              code: INTERNAL_ERROR
+              message: Internal Server Error

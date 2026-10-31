@@ -161,9 +161,6 @@ out/
 # Logs
 *.log
 
-# Prisma
-prisma/migrations/**/migration_lock.toml
-
 # Editor
 .vscode/
 .idea/
