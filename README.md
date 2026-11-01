@@ -21,6 +21,7 @@
 ```text
 frontend/   React + Vite client
 backend/    Express API using pg and PostgreSQL
+database/   SQL schema, seed và migrations theo các task database
 docs/       ERD and project documentation
 .github/    Issue and pull request templates
 ```
@@ -102,6 +103,50 @@ Tài liệu `pg`: [kết nối](https://node-postgres.com/features/connecting),
 [truy vấn có tham số](https://node-postgres.com/features/queries),
 [connection pool](https://node-postgres.com/features/pooling).
 Đặc tả health endpoints nằm trong `openapi.yaml`; Swagger UI thuộc Task 43.
+
+## Task 8: chạy API và PostgreSQL local bằng Docker
+
+Yêu cầu Docker Desktop đang chạy. Từ thư mục gốc của dự án, bảo đảm `.env` có
+`PGUSER`, `PGDATABASE` và `PGPASSWORD`. Nếu chưa có `.env`, copy từ `.env.example`
+và tự điền `PGPASSWORD`; không commit file `.env`.
+
+```powershell
+docker compose up --build -d
+docker compose ps
+Invoke-RestMethod http://localhost:5000/health
+Invoke-RestMethod http://localhost:5000/api/health/db
+```
+
+Compose chạy hai service:
+
+- `api`: backend Express, mặc định tại `http://localhost:5000`.
+- `db`: PostgreSQL 18 local trong container, mở `localhost:5433` cho pgAdmin;
+  trong mạng Docker, API kết nối `db:5432`.
+
+Compose dùng `PGUSER`, `PGDATABASE` và `PGPASSWORD` từ `.env` gốc cho database
+Docker. Nó đặt riêng `DATABASE_URL` rỗng và `DATABASE_SSL=false` cho API trong
+container, nên không dùng connection string Supabase trong `.env`. Backend chạy
+trực tiếp bằng `npm run dev` vẫn dùng cấu hình `.env` như Task 7.
+
+Nếu cổng đang bận, đặt `DOCKER_API_PORT` hoặc `DOCKER_DB_PORT` trong `.env`, rồi
+chạy lại Compose. Ví dụ `DOCKER_API_PORT=5001` thì truy cập
+`http://localhost:5001/api/health/db`. Các cổng này chỉ mở trên máy local.
+
+Để kết nối pgAdmin tới database Docker, đăng ký server mới với host `localhost`,
+port `5433` (hoặc `DOCKER_DB_PORT`), maintenance database là giá trị `PGDATABASE`,
+username là `PGUSER` và password là `PGPASSWORD` trong `.env` gốc. Đây là database
+Docker riêng, không phải database local cài trên máy hay Supabase.
+
+```powershell
+docker compose logs -f api
+docker compose down
+```
+
+`docker compose down` dừng và xóa container/network nhưng giữ volume `postgres_data`.
+PostgreSQL chỉ chạy các file SQL trong `database/schema/` lúc volume được khởi tạo
+lần đầu. Hiện thư mục chưa có schema vì Task 14–15 chưa thực hiện; thêm SQL sau đó
+không tự áp dụng vào volume đã tồn tại. Đổi `PGPASSWORD`, `PGUSER` hay `PGDATABASE`
+trong `.env` cũng không tự cập nhật database đã khởi tạo.
 
 ## Task 7: kết nối Supabase bằng pg
 
