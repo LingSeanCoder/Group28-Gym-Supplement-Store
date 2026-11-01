@@ -6,6 +6,12 @@ tiêu đề hoặc chuyển khỏi draft. Các job độc lập:
 - **Frontend lint and build:** `npm ci`, `npm run lint`, `npm run build` trong `frontend/`.
 - **Backend lint and health:** `npm ci`, lint bằng Oxlint và chạy health API.
 - **PR title:** kiểm tra tiêu đề theo Conventional Commits.
+- **Backend tests:** chạy `npm test` khi `backend/package.json` đã có sau Task 3.
+- **Docker build:** build image từ `backend/Dockerfile` khi Task 8 đã được merge.
+
+Job **Detect backend and Dockerfile** kiểm tra hai file trên. Khi chưa có file,
+job tương ứng hiện **Skipped** trên GitHub; trạng thái này không có nghĩa là test
+hoặc Docker build đã chạy. Khi file xuất hiện, job sẽ tự chạy trên các PR tiếp theo.
 
 `main` hiện dùng `server/`; PR Task 3 chuyển backend thành `backend/`. CI ưu tiên
 `backend/` khi thư mục này có `package.json`, nếu chưa có thì dùng `server/`.

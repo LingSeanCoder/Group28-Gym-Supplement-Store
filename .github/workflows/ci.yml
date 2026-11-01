@@ -9,6 +9,67 @@ permissions:
   contents: read
 
 jobs:
+  detect-project:
+    name: Detect backend and Dockerfile
+    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.detect.outputs.backend }}
+      docker: ${{ steps.detect.outputs.docker }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Main cũ chưa có backend/ và Dockerfile của Task 3 và Task 8.
+      - name: Check available files
+        id: detect
+        run: |
+          if [ -f backend/package.json ]; then
+            echo "backend=true" >> "$GITHUB_OUTPUT"
+          fi
+          if [ -f backend/Dockerfile ]; then
+            echo "docker=true" >> "$GITHUB_OUTPUT"
+          fi
+
+  backend-tests:
+    name: Backend tests
+    needs: detect-project
+    if: needs.detect-project.outputs.backend == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install backend dependencies
+        working-directory: backend
+        run: npm ci
+
+      - name: Run backend tests
+        working-directory: backend
+        env:
+          DATABASE_URL: ''
+          DATABASE_SSL: 'false'
+          DATABASE_SSL_CA_PATH: ''
+        run: npm test
+
+  docker-build:
+    name: Docker build
+    needs: detect-project
+    if: needs.detect-project.outputs.docker == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build backend image
+        run: docker build --tag gym-supplement-backend:ci ./backend
+
   frontend:
     name: Frontend lint and build
     runs-on: ubuntu-latest
